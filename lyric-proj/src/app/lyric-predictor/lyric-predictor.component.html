@@ -1,0 +1,16 @@
+<div>
+  Enter some lyrics
+  <br/>
+  <label class = "center-block">Lyrics: 
+    <input class="form-control" [formControl]="lyric" type="text">
+    <button type="submit" [disabled] = "lyric.pristine" (click) ="onSubmit()" class = "btn btn-success">
+      Submit
+    </button>
+  </label>
+  <div *ngIf="predicted">
+    <div>
+      <span>words</span>
+    </div>
+  </div>
+</div>
+     
