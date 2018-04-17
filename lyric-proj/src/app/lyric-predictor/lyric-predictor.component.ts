@@ -9,6 +9,7 @@ import { FormControl } from '@angular/forms';
 export class LyricPredictorComponent {
   lyric = new FormControl();
   predicted:boolean;
+  prediction:string = "some lyrics";
 
   constructor() {
     this.predicted = false;
