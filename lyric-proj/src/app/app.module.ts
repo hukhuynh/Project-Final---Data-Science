@@ -4,10 +4,12 @@ import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 
+//import {LyricsService} from './lyrics.service'
+
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { LyricPredictorComponent } from './lyric-predictor/lyric-predictor.component';
-
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -18,6 +20,7 @@ import { LyricPredictorComponent } from './lyric-predictor/lyric-predictor.compo
   imports: [
     BrowserModule,
     HttpModule,
+    HttpClientModule,
     RouterModule.forRoot([
       {path: 'home',component: HomeComponent},
       {path: 'lyricpredictor', component: LyricPredictorComponent},
@@ -25,7 +28,10 @@ import { LyricPredictorComponent } from './lyric-predictor/lyric-predictor.compo
     ]),
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [ 
+    HttpClient
+    //LyricsService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
