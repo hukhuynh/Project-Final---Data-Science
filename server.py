@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
-from flask_restful import Resource, Api
+from flask_restful import Resource, Api, reqparse
 from json import dumps
 from flask_jsonpify import jsonify
 
@@ -9,27 +9,30 @@ api = Api(app)
 
 CORS(app)
 
-@app.route("/")
-def hello():
-    return jsonify({'text':'Hello World!'})
+parser = reqparse.RequestParser()
+parser.add_argument('text')    
 
-class Employees(Resource):
+data = {}
+data['type'] = 'letter'
+data['text'] = "Initial value from flask"
+class Lyrics(Resource):   
     def get(self):
-        return {'employees': [{'id':1, 'name':'Balram'},{'id':2, 'name':'Tom'}]} 
-
-class Employees_Name(Resource):
-    def get(self, employee_id):
-        print('Employee id:' + employee_id)
-        result = {'data': {'id':1, 'name':'Balram'}}
-        return jsonify(result)       
-
-class Lyrics(Resource):
-    def get(self):
-        return jsonify({'text':'This is from a flask server.'})
+        return jsonify({'type':data['type'],'text':data['text']})
+    def post(self):
+        temp = request.json
+        data['type'] = temp['type']
+        data['text'] = temp['text']
+        return temp
 
 api.add_resource(Lyrics, '/lyrics')
-api.add_resource(Employees, '/employees') # Route_1
-api.add_resource(Employees_Name, '/employees/<employee_id>') # Route_3
+
+# @app.route('/')
+# @app.route("/lyrics", methods=['GET','POST'])
+# def lyrics():
+#     if request.method == 'POST':
+#         temp = request.json
+#     return temp
+
 
 
 if __name__ == '__main__':

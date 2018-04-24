@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { LyricPredictorComponent } from './lyric-predictor/lyric-predictor.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { LyricsService } from './lyrics.service';
 
 @NgModule({
   declarations: [
@@ -29,8 +30,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
     ReactiveFormsModule
   ],
   providers: [ 
-    HttpClient
-    //LyricsService
+    HttpClient,
+    LyricsService
   ],
   bootstrap: [AppComponent]
 })

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { LyricsService } from '../lyrics.service'
 
 @Component({
   selector: 'app-lyric-predictor',
@@ -9,20 +10,28 @@ import { HttpClient } from '@angular/common/http';
 })
 export class LyricPredictorComponent {
 
-  lyric = new FormControl();
+  lyricForm = new FormGroup({
+    modelType: new FormControl(),
+    lyric: new FormControl()
+  });
+  
   predicted:boolean;
   serverData: JSON;
   lyricData: JSON;
   lyricLine: string; 
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient,
+              private lyricsService: LyricsService) {
     this.predicted = false;
     this.lyricLine='';
   }
 
   onSubmit(){
-    this.lyricLine = this.lyric.value;
-    this.getLyrics();
+    this.lyricsService.sendData(this.lyricForm.value.modelType, this.lyricForm.value.lyric).subscribe(data=>{
+    },
+    error => console.log("Error: ", error),
+    () => this.getLyrics())
+    //this.getLyrics();
     this.predicted = true;
   }
 
