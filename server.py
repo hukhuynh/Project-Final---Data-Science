@@ -2,6 +2,12 @@
 import pickle
 pickle_in = open("wordDict.pickle","rb")
 wordDict = pickle.load(pickle_in)
+pickle_in.close()
+
+pickle_in = open("dictWord.pickle","rb")
+dictWord = pickle.load(pickle_in)
+pickle_in.close()
+
 
 from keras.models import model_from_json
 
@@ -29,6 +35,7 @@ loaded_word = model_from_json(loaded_model_json)
 loaded_word.load_weights("model_word.h5")
 print("Loaded model from disk")
 json_file.close()
+loaded_word.compile(loss='categorical_crossentropy',optimizer='adam')
 
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
@@ -61,17 +68,18 @@ class Lyrics(Resource):
             #data['text'] = loaded_letter.predict(temp['text'])
         elif temp['type'] == 'word':
             # data['text'] = tempFuncWord(temp['text'])
-            row = str(temp['text'])
-            row = re.sub('[^\w]',' ', row).split()
-            pattern = [wordDict[string] for string in row]
+            initial_text = str(temp['text'])
+            initial_text = re.sub('[^\w]',' ', initial_text).split()
+            pattern = [wordDict[string] for string in initial_text]
             pattern = pattern[0:20]
             text_gen=""
             for i in range(20):
                 x = np.reshape(pattern,(1,len(pattern),1))
                 x = x/float(len(wordDict))
                 prediction = loaded_word.predict(x,verbose=0)
+                prediction = prediction[0]
                 index = np.random.choice(len(prediction),p=prediction)
-                result = wordDict[index]
+                result = dictWord[index]
                 text_gen = text_gen+' '+result
             data['text'] = text_gen
         else:
