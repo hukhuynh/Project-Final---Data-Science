@@ -2,11 +2,11 @@
 import pickle
 #letter dictionaries
 pickle_in = open("letterDict.pickle","rb")
-wordDict = pickle.load(pickle_in)
+letterDict = pickle.load(pickle_in)
 pickle_in.close()
 
 pickle_in = open("dictLetter.pickle","rb")
-dictWord = pickle.load(pickle_in)
+dictLetter = pickle.load(pickle_in)
 pickle_in.close()
 
 #word dictionaries
@@ -31,6 +31,7 @@ loaded_letter = model_from_json(loaded_model_json)
 loaded_letter.load_weights("model_letter.h5")
 print("Loaded model from disk")
 json_file.close()
+loaded_letter.compile(loss='categorical_crossentropy',optimizer='adam')
 
 # load json and create model
 json_file = open('model_word.json', 'r')
@@ -63,17 +64,42 @@ parser.add_argument('text')
 
 data = {}
 data['type'] = 'letter'
-data['text'] = "Initial value from flask"
+data['text'] = ""
 class Lyrics(Resource):   
     def get(self):
         return jsonify({'type':data['type'],'text':data['text']})
     def post(self):
         temp = request.json
+        #uses letter model
         if temp['type'] == 'letter':
-            data['text'] = tempFuncLetter(temp['text'])
-            #data['text'] = loaded_letter.predict(temp['text'])
+            # parsing input
+            initial_text = str(temp['text'])
+            initial_text = re.sub('[^\w]',' ', initial_text)
+            pattern = []
+            pattern=[letterDict[char] for char in initial_text]
+            # for letter in initial_text:
+            #     if letter in letterDict:
+            #         pattern.append(letterDict[letter])
+            #     else:
+            #         pattern.append(random.randint(1,len(letterDict)-1))
+            # #used if user enters less than 5 words
+            # if len(pattern) < 20:
+            #     for i in range(len(pattern),20):
+            #         pattern.append(random.randint(1,len(letterDict)-1))
+            pattern = pattern[0:20]
+            text_gen=""
+            for i in range(20):
+                x = np.reshape(pattern,(1,len(pattern),1))
+                x = x/float(len(letterDict))
+                prediction = loaded_letter.predict(x,verbose=0)
+                prediction = prediction[0]
+                index = np.random.choice(len(prediction),p=prediction)
+                result = dictLetter[index]
+                text_gen = text_gen+result
+            data['text'] = data['text'] + temp['text'] + text_gen + " " 
+        #uses word model
         elif temp['type'] == 'word':
-            # data['text'] = tempFuncWord(temp['text'])
+            # parsing input
             initial_text = str(temp['text'])
             initial_text = re.sub('[^\w]',' ', initial_text).split()
             pattern = []
@@ -98,7 +124,7 @@ class Lyrics(Resource):
                 index = np.random.choice(len(prediction),p=prediction)
                 result = dictWord[index]
                 text_gen = text_gen+' '+result
-            data['text'] = temp['text'] + text_gen
+            data['text'] = data['text'] + temp['text'] + text_gen + ' '
         else:
             data['text'] = 'please chose a model type'
         data['type'] = temp['type']
