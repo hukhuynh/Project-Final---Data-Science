@@ -4,6 +4,7 @@ import { Headers,Http, RequestOptions } from '@angular/http';
 
 import { Observable } from 'rxjs/observable'
 import 'rxjs/add/operator/toPromise';
+import { FormControl } from '@angular/forms';
 
 @Injectable()
 export class LyricsService {

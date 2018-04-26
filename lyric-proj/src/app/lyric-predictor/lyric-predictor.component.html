@@ -5,14 +5,14 @@
 
     <div class="form-group radio">
       Predict:
-      <input type="radio" formControlName="modelType" value="letter">
+      <input type="radio" formControlName="modelType" value="letter" required>
       <label class="center-block">Letters</label>
 
-      <input type="radio" formControlName="modelType" value="word">
+      <input type="radio" formControlName="modelType" value="word" required>
       <label class="center-block">Words</label>
     </div>
     <label class="center-block">Lyrics:
-      <input class="form-control" formControlName="lyric" type="text">
+      <input class="form-control" formControlName="lyric" type="text" required>
     </label>
     <button type="submit" [disabled]="!lyricForm.valid" (click)="onSubmit()" class="btn btn-success">
       Submit

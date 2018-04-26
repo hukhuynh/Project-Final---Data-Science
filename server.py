@@ -1,5 +1,15 @@
 
 import pickle
+#letter dictionaries
+pickle_in = open("letterDict.pickle","rb")
+wordDict = pickle.load(pickle_in)
+pickle_in.close()
+
+pickle_in = open("dictLetter.pickle","rb")
+dictWord = pickle.load(pickle_in)
+pickle_in.close()
+
+#word dictionaries
 pickle_in = open("wordDict.pickle","rb")
 wordDict = pickle.load(pickle_in)
 pickle_in.close()
@@ -11,20 +21,16 @@ pickle_in.close()
 
 from keras.models import model_from_json
 
-def tempFuncLetter(str):
-    return "Prediction based on letters"
-# def tempFuncWord(str):
-#     return "Prediction based on words"
 
 # # load json and create model
-# json_file = open('model_letter.json', 'r')
-# loaded_model_json = json_file.read()
-# json_file.close()
-# loaded_letter = model_from_json(loaded_model_json)
+json_file = open('model_letter.json', 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+loaded_letter = model_from_json(loaded_model_json)
 # # load weights into new model
-# loaded_letter.load_weights("model_letter.h5")
-# print("Loaded model from disk")
-# json_file.close()
+loaded_letter.load_weights("model_letter.h5")
+print("Loaded model from disk")
+json_file.close()
 
 # load json and create model
 json_file = open('model_word.json', 'r')
@@ -44,7 +50,7 @@ from json import dumps
 from flask_jsonpify import jsonify
 
 import numpy as np
-
+import random
 import re
 
 app = Flask(__name__)
@@ -70,10 +76,21 @@ class Lyrics(Resource):
             # data['text'] = tempFuncWord(temp['text'])
             initial_text = str(temp['text'])
             initial_text = re.sub('[^\w]',' ', initial_text).split()
-            pattern = [wordDict[string] for string in initial_text]
-            pattern = pattern[0:20]
+            pattern = []
+            #used if words entered are not in dictionary
+            for string in initial_text:
+                if string in wordDict:
+                    pattern.append(wordDict[string])
+                else:
+                    pattern.append(random.randint(1,len(wordDict)-1))
+            #used if user enters less than 5 words
+            if len(pattern) < 5:
+                for i in range(len(pattern),5):
+                    pattern.append(random.randint(1,len(wordDict)-1))
+
+            pattern = pattern[0:5]
             text_gen=""
-            for i in range(20):
+            for i in range(5):
                 x = np.reshape(pattern,(1,len(pattern),1))
                 x = x/float(len(wordDict))
                 prediction = loaded_word.predict(x,verbose=0)
@@ -81,7 +98,7 @@ class Lyrics(Resource):
                 index = np.random.choice(len(prediction),p=prediction)
                 result = dictWord[index]
                 text_gen = text_gen+' '+result
-            data['text'] = text_gen
+            data['text'] = temp['text'] + text_gen
         else:
             data['text'] = 'please chose a model type'
         data['type'] = temp['type']
